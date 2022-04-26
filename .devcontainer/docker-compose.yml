@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    image: mcr.microsoft.com/vscode/devcontainers/dotnet:0-6.0-bullseye
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    depends_on:
+      - mssql
+    user: vscode
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    entrypoint: /bin/bash /entrypoint.sh
+    mem_limit: 2G
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQLSERVER_SA_PASSWORD}
+      - MSSQL_PID=Developer
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ./mssql/entrypoint.sh:/entrypoint.sh
+      - ./mssql/db-init.sql:/db-init.sql
+
+volumes:
+  mssql-data:
